@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sundram Fasteners — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--bg:#04080f;--panel:#0a1220;--bd:#17233b;--acc:#f0a500;--tx:#e8edf6;--mu:#8a94a6;--fa:#5a6577;--red:#ff5964;--grn:#37d39b;--blu:#5aa9ff;--pur:#b48cff}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--tx);font-family:'DM Sans',system-ui,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
+header{padding:26px 16px 16px;border-bottom:1px solid var(--bd);background:linear-gradient(180deg,#0a1220,#04080f)}
+.wrap{max-width:1040px;margin:0 auto}
+h1{font-family:Syne,sans-serif;font-weight:800;font-size:1.55rem;letter-spacing:-.02em;line-height:1.2}
+.sub{color:var(--mu);font-size:.9rem;margin-top:6px}
+.badge{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.66rem;letter-spacing:.09em;text-transform:uppercase;padding:4px 9px;border-radius:4px;border:1px solid var(--acc);color:var(--acc);margin-bottom:12px}
+.verdict{margin-top:16px;background:#0a1220;border:1px solid var(--bd);border-left:3px solid var(--acc);border-radius:8px;padding:13px 15px;font-size:.92rem;color:#cfd7e4}
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-top:16px}
+@media(min-width:700px){.kpis{grid-template-columns:repeat(4,1fr)}}
+.kpi{background:var(--panel);border:1px solid var(--bd);border-radius:8px;padding:11px 12px}
+.kpi .l{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.09em;text-transform:uppercase;color:var(--fa)}
+.kpi .v{font-family:'JetBrains Mono',monospace;font-size:1.16rem;font-weight:700;color:var(--acc);margin-top:3px}
+.kpi .n{font-size:.7rem;color:var(--mu)}
+nav{position:sticky;top:0;z-index:50;background:rgba(4,8,15,.96);backdrop-filter:blur(8px);border-bottom:1px solid var(--bd)}
+.tabs{display:flex;overflow-x:auto;scrollbar-width:none;max-width:1040px;margin:0 auto}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;background:none;border:none;border-bottom:2px solid transparent;color:var(--mu);font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;padding:14px 15px;cursor:pointer;white-space:nowrap}
+.tab.on{color:var(--acc);border-bottom-color:var(--acc)}
+@media(min-width:900px){.tabs{justify-content:center}}
+main{padding:20px 16px 70px}
+.panel{display:none}.panel.on{display:block}
+.sect{font-family:Syne,sans-serif;font-weight:700;font-size:1.18rem;letter-spacing:-.01em}
+.sdesc{color:var(--mu);font-size:.85rem;margin:4px 0 16px}
+.card{background:var(--panel);border:1px solid var(--bd);border-radius:10px;padding:15px 16px;margin-bottom:13px}
+.card h3{font-family:Syne,sans-serif;font-size:1rem;font-weight:700;margin-bottom:8px}
+.card p{font-size:.92rem;color:#c7d0de;margin-bottom:9px}
+.card p:last-child{margin-bottom:0}
+ul{list-style:none}
+li{font-size:.9rem;color:#c7d0de;padding-left:16px;position:relative;margin-bottom:8px}
+li:before{content:"—";position:absolute;left:0;color:var(--acc)}
+b,strong{color:var(--tx)}
+.call{border-left:3px solid var(--acc);background:rgba(240,165,0,.06);border-radius:0 8px 8px 0;padding:12px 14px;margin:12px 0;font-size:.9rem;color:#dbe3ee}
+.call.r{border-left-color:var(--red);background:rgba(255,89,100,.06)}
+.call.g{border-left-color:var(--grn);background:rgba(55,211,155,.06)}
+.q{border-left:3px solid var(--blu);background:rgba(90,169,255,.05);border-radius:0 8px 8px 0;padding:12px 14px;margin:12px 0;font-size:.9rem;font-style:italic;color:#cfd7e4}
+.q .att{display:block;font-style:normal;font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--fa);margin-top:7px;letter-spacing:.05em}
+.tw{overflow-x:auto;margin:10px 0;border:1px solid var(--bd);border-radius:8px}
+table{border-collapse:collapse;min-width:560px;width:100%;font-family:'JetBrains Mono',monospace;font-size:.76rem}
+th{background:#0d1626;color:var(--fa);text-transform:uppercase;letter-spacing:.06em;font-size:.63rem;font-weight:500;padding:9px 10px;text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+td{padding:9px 10px;text-align:right;border-top:1px solid var(--bd);color:#c7d0de;white-space:nowrap}
+tbody tr:nth-child(odd){background:rgba(255,255,255,.012)}
+.src{font-family:'JetBrains Mono',monospace;font-size:.63rem;color:var(--fa);margin-top:6px}
+.tag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.07em;text-transform:uppercase;padding:2px 7px;border-radius:3px;margin:0 5px 5px 0}
+.t-h{background:rgba(55,211,155,.13);color:var(--grn);border:1px solid rgba(55,211,155,.3)}
+.t-m{background:rgba(240,165,0,.13);color:var(--acc);border:1px solid rgba(240,165,0,.3)}
+.t-r{background:rgba(255,89,100,.13);color:var(--red);border:1px solid rgba(255,89,100,.3)}
+.t-i{background:rgba(90,169,255,.13);color:var(--blu);border:1px solid rgba(90,169,255,.3)}
+.cw{position:relative;height:280px;margin-top:8px}
+.pos{color:var(--grn)}.neg{color:var(--red)}
+footer{border-top:1px solid var(--bd);padding:16px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--fa)}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+<span class="badge">Equity Note · Dashboard View</span>
+<h1>Sundram Fasteners</h1>
+<div class="sub">From bolt-maker to irreplaceable precision partner</div>
+<div class="verdict"><b>The verdict in one line:</b> The company has moved from selling commodity bolts to making parts that are designed into a customer's product — which makes it very hard to replace. That story is already largely reflected in the share price. What happens next depends on whether the heavy spending on new factories actually lifts returns.</div>
+<div class="kpis">
+<div class="kpi"><div class="l">Revenue FY26</div><div class="v">₹6,289 cr</div><div class="n">+5.6% growth</div></div>
+<div class="kpi"><div class="l">Return on capital</div><div class="v">16.9%</div><div class="n">down from 18.7% FY23</div></div>
+<div class="kpi"><div class="l">P/E now</div><div class="v">41.9x</div><div class="n">industry 29.0x</div></div>
+<div class="kpi"><div class="l">EV order book</div><div class="v">₹4,000 cr</div><div class="n">cumulative</div></div>
+</div>
+</div></header>
+<nav><div class="tabs" id="tabs"></div></nav>
+<main class="wrap">
+
+<section class="panel" id="p0">
+<div class="sect">The Irreplaceability Moat</div>
+<div class="sdesc">Why customers can't easily swap Sundram out once a part is designed in.</div>
+<div class="card"><h3>"Cast in stone" — designed-in parts resist cheaper rivals</h3>
+<p>Once Sundram wins a programme for a <b>critical component</b> (a part the vehicle cannot function safely without), the carmaker will not switch supplier even if someone quotes a lower price. Management describes this as <b>virtually no competition</b>.</p>
+<div class="q">"if it is a critical component, the OEMs are not comfortable replacing. In that sense, virtually there's no competition. For instance, the $250 million program which we have won, if some other supplier, whether in India or some other part of the world, offers a better price, the OEM will not change the source... it is cast in stone from that perspective."<span class="att">Dilip Kumar · Q4 FY23 earnings call</span></div>
+<p>The point: what keeps the business is <b>design-in status</b> — being written into the customer's engineering drawings — not being the cheapest bidder.</p></div>
+<div class="card"><h3>The two-tier reality</h3>
+<ul>
+<li><span class="tag t-h">Protected</span> <b>Specials / critical parts:</b> Sundram is the single source with most carmakers. Switching essentially doesn't happen.</li>
+<li><span class="tag t-m">Contested</span> <b>Standard / entry-level parts:</b> here customers deliberately keep a second supplier to reduce risk, and rivals bid lower. Sundram says it "does not give in" on price.</li>
+<li>On standard products it is present with 30–40% of each customer's suppliers, but holds <b>50–60% of that customer's business</b>.</li>
+<li>Six decades in fasteners, plus joint development with customers across petrol/diesel (ICE), electric (EV) and hybrid programmes, is the underlying barrier.</li>
+<li>The fasteners business with <b>Cummins</b> is described as growing very well.</li>
+</ul></div>
+<div class="card"><h3>Scale and validation</h3>
+<ul>
+<li><b>India's largest fastener maker</b> — 35–40% market share; management cites close to 40–45%.</li>
+<li>World-class plants in <b>three countries</b>, headquartered in Chennai.</li>
+<li>A <b>General Motors</b> supplier for 25+ years, named Supplier of the Year five years running (1996–2000) and again in 2009, 2019, 2020 and 2021 — across Cadillac, GMC and Chevrolet.</li>
+<li>Exports are roughly <b>30% of revenue</b>: North America ~65% of that, Europe/UK 20–25%.</li>
+</ul></div>
+</section>
+
+<section class="panel" id="p1">
+<div class="sect">Value Chain</div>
+<div class="sdesc">What Sundram actually makes, and how far up the chain it has climbed.</div>
+<div class="card"><h3>Not a fastener company any more</h3>
+<p>The company describes itself as <b>"a broad-based engineering company capable of undertaking the manufacture of various components and assembly systems for automotive and other engineering applications"</b> — i.e. it sells finished sub-assemblies, not just parts.</p></div>
+<div class="card"><h3>The product ladder</h3>
+<ul>
+<li>High-tensile fasteners · powder metal components · cold extruded parts</li>
+<li>Hot forged components · radiator caps · automotive pumps</li>
+<li>Cast and machined assemblies · gears and couplings · tappets</li>
+<li>Iron powder · powertrain components and sub-assemblies</li>
+</ul>
+<p style="margin-top:10px"><b>Process depth:</b> forging, metal forming, close-tolerance machining (cutting to very fine accuracy), heat treatment, surface finishing and assembly — all in-house.</p>
+<div class="call">The forging factory <b>already exports to large US EV manufacturers</b>, with new lines for precision-machined connecting rods and wheel bearing parts.</div>
+</div>
+</section>
+
+<section class="panel" id="p2">
+<div class="sect">The Financial Engine</div>
+<div class="sdesc">The 1:1 rule on new investment, and what the reported numbers actually show.</div>
+<div class="card"><h3>The 1:1 capex-to-revenue rule</h3>
+<p>The planning assumption: <b>every ₹1 spent on revenue-adding new machinery should generate about ₹1 of extra sales every year</b>.</p>
+<div class="q">"We are incurring about Rs. 300 crores. About Rs. 100 crores would be for replacement. A balance Rs. 200 crores would be for revenue. And like I said, a 1:1 is a safe bet to assume."<span class="att">R. Dilip Kumar, CFO · Q3 FY26 earnings call</span></div>
+<ul>
+<li><b>The split:</b> roughly 25–30% of spending is replacement (improves productivity, adds no sales); the remaining 60–65% adds revenue directly.</li>
+<li><b>The timing:</b> imported machines take 6–9 months to install; the one-to-one growth then shows up over the following ~6 months.</li>
+<li><b>Customer-backed:</b> investment runs on clear indications and agreements from customers — not speculative capacity.</li>
+<li><b>Actual FY26 spend:</b> ₹404.27 crore, above the ~₹350 crore guided, for capacity expansion in auto and non-auto.</li>
+<li><b>Best case seen:</b> one order needed ₹80 crore of spending for peak revenue of ₹150–160 crore — far better than 1:1.</li>
+</ul></div>
+<div class="card"><h3>Why non-auto is supposed to lift returns</h3>
+<ul>
+<li>Wind, aerospace and industrial fasteners are named as the key non-auto drivers <b>because their returns beat auto</b>. Defence stays small — validation and approval take too long.</li>
+<li><b>EV economics:</b> guided at ~20–21% operating profit margin versus the company's ~15–16% at the time, with return on capital "closer to 35%", later refined to ~25%.</li>
+<li>Non-auto is about <b>one-third of revenue</b> (tractors 10–12%), with a stated aim of <b>50% over the medium to long term</b>.</li>
+</ul>
+<div class="call r"><b>The caveat that matters:</b> this uplift has not appeared in reported numbers yet. Return on capital has <b>slipped from 18.7% (FY23) to 16.9% (FY26)</b> while fixed assets grew from ₹2,029 cr to ₹2,501 cr.</div></div>
+<div class="card"><h3>Reported financials</h3>
+<div class="cw"><canvas id="c_sf1"></canvas></div>
+<div class="tw"><table><thead><tr><th>Period</th><th>Revenue</th><th>Growth %</th><th>OPM %</th><th>NPM %</th><th>ROCE %</th><th>ROE %</th><th>D/E</th><th>Fixed assets</th></tr></thead><tbody>
+<tr><td>Latest</td><td>6,601.50</td><td>4.97</td><td>15.68</td><td>9.29</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+<tr><td>FY26</td><td>6,288.82</td><td>5.60</td><td>15.84</td><td>9.43</td><td>16.86</td><td>13.87</td><td>0.15</td><td>2,501.15</td></tr>
+<tr><td>FY25</td><td>5,955.42</td><td>5.10</td><td>15.85</td><td>9.10</td><td>16.15</td><td>14.22</td><td>0.22</td><td>2,254.10</td></tr>
+<tr><td>FY24</td><td>5,666.31</td><td>0.06</td><td>15.65</td><td>9.28</td><td>17.89</td><td>15.37</td><td>0.19</td><td>2,099.57</td></tr>
+<tr><td>FY23</td><td>5,662.75</td><td>15.52</td><td>15.07</td><td>8.84</td><td>18.70</td><td>16.59</td><td>0.24</td><td>2,029.47</td></tr>
+</tbody></table></div>
+<div class="src">₹ crore unless stated · Source: Reported financials (FY23–FY26). Latest = trailing period. Working-capital days: inventory 174.5 / receivable 89.4 / cash cycle 173.3 (FY26).</div></div>
+</section>
+
+<section class="panel" id="p3">
+<div class="sect">Transition Dynamics</div>
+<div class="sdesc">The electric-vehicle order book, what it costs the company, and the hedge.</div>
+<div class="card"><h3>The ₹4,000 crore EV order book</h3>
+<ul>
+<li><span class="tag t-h">Anchor</span> A <b>$250 million contract</b> announced January 2023 — the biggest EV contract in the company's 60-year history — for shaft and drive gear sub-assemblies for a leading global carmaker.</li>
+<li><b>Structure:</b> ₹200 crore investment, a six-year purchase package, peak sales ~$52 million in 2026, ~0.15 crore drive-unit sub-assemblies a year.</li>
+<li><b>Mix:</b> the Feb-2023 read was ~70% pure EV, ~20% hybrids, across SUVs and sedans.</li>
+<li><b>Scale:</b> cumulative EV order book ~₹4,000 crore; a $375 million order book as of May 2023.</li>
+<li><b>Margin promise:</b> ~20–21% operating margin, return on capital toward 25–35%.</li>
+</ul></div>
+<div class="card"><h3>The downside: less content per car, and delays</h3>
+<div class="call r"><b>Content loss:</b> a pure battery-electric vehicle cuts Sundram's steel forging content by <b>25–30%</b> versus a petrol/diesel car — the engine is replaced by a battery pack, and the engine is where the forgings were.</div>
+<ul>
+<li>EV pickup has moved out to <b>H2 FY27</b>.</li>
+<li>Stellantis EV launches have slipped by another quarter.</li>
+<li>The industry "goalpost" has shifted from <b>2030 to 2035</b>.</li>
+</ul></div>
+<div class="card"><h3>The hedge: an engine-heavy, diversified book</h3>
+<ul>
+<li><b>Calibrated shift:</b> management expects the mix to settle at roughly 50–60% petrol/diesel, ~15% plug-in hybrid and 25–30% battery-electric by 2030–2035. Engines stay dominant for years.</li>
+<li><b>Wind:</b> ~₹200 cr (FY23) → ~₹350 cr annualised by Q3 FY26 → heading to ~₹500 cr (~30% growth) at full use of installed resources.</li>
+<li><b>Aerospace:</b> ~₹50 cr today, targeting ₹100 cr then ₹500 cr in 2–3 years; monthly revenue up toward ~₹5 cr from ~₹2.5–3 cr. Customers include General Electric, Hindustan Aeronautics and Skyroads, with NADCAP and AS9100 certifications.</li>
+<li><b>Exports stay engine-heavy:</b> cars and commercial vehicles ~80% of exports, tractors ~5%, rest off-road and stationary engines. GM alone contributes upwards of ₹250 cr.</li>
+<li><b>Pipeline:</b> over ₹1,000 cr of new projects with a similar amount under discussion; target of at least 20% of revenue from new products on a rolling 3-year basis.</li>
+</ul></div>
+</section>
+
+<section class="panel" id="p4">
+<div class="sect">Management &amp; Capital Allocation</div>
+<div class="sdesc">TVS Group heritage, the family reorganisation, and the spending track record.</div>
+<div class="card"><h3>TVS heritage and the promoter reclassification</h3>
+<ul>
+<li>Sundram sits within the <b>TVS Group</b>, whose businesses have traditionally been managed by members of the different branches of the TVS family — mainly third- and fourth-generation descendants of founder T.V. Sundaram Iyengar.</li>
+<li>Three TVS holding companies held <b>49.53%</b> of Sundram Fasteners (10,40,85,280 shares).</li>
+<li>A December 2020 <b>Memorandum of Family Arrangement</b> sought to align ownership with management; a composite scheme would move the fasteners undertaking to TVS Sundram Fasteners Pvt Ltd, with the 49.53% stake vesting there, majority-held by the Sri Suresh Krishna family.</li>
+<li><b>Distance from the listed entity:</b> Sundram Fasteners is not a party to the arrangement and said the transaction is not a related-party transaction from its perspective. It signed on to the family's Non-Competition Agreement via a deed of adherence in January 2022.</li>
+</ul></div>
+<div class="card"><h3>Spending track record</h3>
+<ul>
+<li>FY24 capex of ₹300 cr spent in line with plan.</li>
+<li>FY26 actual ₹404.27 cr <b>beat</b> the ~₹350 cr guide.</li>
+<li>FY27 guided to ~₹250 cr.</li>
+<li><b>Directed spending:</b> ₹200 cr to the EV contract, ~₹85–90 cr on wind, ~₹25 cr on Tamil Nadu group-captive power.</li>
+</ul>
+<div class="call r"><b>The watch-item:</b> operating margin has been strikingly stable (~15–16% across FY23–FY26), but revenue growth slowed to 5.6% in FY26 and return on capital has drifted down. The ~₹1,000 cr spending programme now needs its 1:1 conversion — and the wind/aerospace/EV book — to lift returns. That hasn't happened yet.</div></div>
+</section>
+
+<section class="panel" id="p5">
+<div class="sect">The Valuation Verdict</div>
+<div class="sdesc">What the market is already paying for the story.</div>
+<div class="card">
+<div class="tw"><table><thead><tr><th>Multiple</th><th>Current</th><th>3-Yr median</th><th>5-Yr median</th><th>Industry</th></tr></thead><tbody>
+<tr><td>P/E</td><td>41.9x</td><td>41.4x</td><td>39.5x</td><td>29.0x</td></tr>
+<tr><td>EV/EBITDA</td><td>25.2x</td><td>20.1x</td><td>20.1x</td><td>14.8x</td></tr>
+<tr><td>P/B</td><td>6.0x</td><td>4.6x</td><td>4.6x</td><td>3.8x</td></tr>
+</tbody></table></div>
+<div class="src">PEG 7.16 · FCF yield 1.8% · Source: Valuation metrics / Latest market data.</div>
+<div class="cw"><canvas id="c_sf2"></canvas></div>
+</div>
+<div class="card"><h3>What it means in plain English</h3>
+<p>The irreplaceability story is <b>already largely priced in</b>. The shares trade at roughly their own three-year average earnings multiple, but at a <b>45% premium to the industry's 29x</b>, with a thin free-cash-flow yield of 1.8% because of the heavy spending cycle.</p>
+<div class="call"><b>The single question that decides the outcome:</b> does the 1:1 capex-to-revenue conversion — plus the wind, aerospace and EV book — actually deliver the promised return uplift? Or do programme delays and the 25–30% content loss on battery vehicles keep reported return on capital capped near 16.9%?</div></div>
+</section>
+
+</main>
+<footer>Dashboard view of the supplied report. No figures added beyond the source.</footer>
+<script>
+var TABS=["Moat","Value Chain","Financials","EV Transition","Management","Valuation"];
+var tb=document.getElementById("tabs");
+TABS.forEach(function(t,i){var b=document.createElement("button");b.className="tab"+(i===0?" on":"");b.textContent=t;b.onclick=function(){go(i,b)};tb.appendChild(b)});
+document.getElementById("p0").classList.add("on");
+function go(i,b){
+  document.querySelectorAll(".tab").forEach(function(x){x.classList.remove("on")});
+  b.classList.add("on");
+  document.querySelectorAll(".panel").forEach(function(x){x.classList.remove("on")});
+  document.getElementById("p"+i).classList.add("on");
+  b.scrollIntoView({block:"nearest",inline:"center",behavior:"smooth"});
+  window.scrollTo({top:0,behavior:"smooth"});
+  draw(i);
+}
+var done={};
+var G="#8a94a6",GRID="rgba(23,35,59,.9)";
+function draw(i){
+  if(done[i])return; done[i]=true;
+  if(i===2){
+    new Chart(document.getElementById("c_sf1"),{type:"bar",data:{labels:["FY23","FY24","FY25","FY26"],datasets:[
+      {type:"bar",label:"Revenue (₹ cr)",data:[5662.75,5666.31,5955.42,6288.82],backgroundColor:"rgba(240,165,0,.55)",borderColor:"#f0a500",borderWidth:1,yAxisID:"y"},
+      {type:"line",label:"ROCE %",data:[18.70,17.89,16.15,16.86],borderColor:"#ff5964",backgroundColor:"#ff5964",tension:.3,yAxisID:"y1"},
+      {type:"line",label:"OPM %",data:[15.07,15.65,15.85,15.84],borderColor:"#37d39b",backgroundColor:"#37d39b",tension:.3,yAxisID:"y1"}
+    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:G,font:{size:10}}},title:{display:true,text:"Revenue grows, returns drift down",color:"#e8edf6",font:{size:12}}},scales:{
+      x:{ticks:{color:G},grid:{color:GRID}},
+      y:{position:"left",ticks:{color:G},grid:{color:GRID},title:{display:true,text:"₹ cr",color:G}},
+      y1:{position:"right",min:10,max:22,ticks:{color:G},grid:{display:false},title:{display:true,text:"%",color:G}}}}});
+  }
+  if(i===5){
+    new Chart(document.getElementById("c_sf2"),{type:"bar",data:{labels:["P/E","EV/EBITDA","P/B"],datasets:[
+      {label:"Current",data:[41.9,25.2,6.0],backgroundColor:"#f0a500"},
+      {label:"3-Yr median",data:[41.4,20.1,4.6],backgroundColor:"#5aa9ff"},
+      {label:"Industry",data:[29.0,14.8,3.8],backgroundColor:"#5a6577"}
+    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:G,font:{size:10}}},title:{display:true,text:"Priced above the industry on every measure",color:"#e8edf6",font:{size:12}}},scales:{x:{ticks:{color:G},grid:{display:false}},y:{ticks:{color:G},grid:{color:GRID}}}}});
+  }
+}
+</script>
+</body>
+</html>
